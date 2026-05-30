@@ -1,0 +1,6 @@
+{
+  "name": "Naveh Consulting",
+  "description": "A high-end executive consulting firm bridge connecting the United States and Korea.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
