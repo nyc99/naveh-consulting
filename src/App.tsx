@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   DoorOpen,
@@ -15,21 +15,15 @@ import {
   Layers,
   Zap,
   Sparkles,
-  Clock,
   ArrowRight,
   X,
   ChevronRight,
-  FileText,
   Check,
-  Building2,
-  Phone,
-  Mail,
   ArrowUpRight,
-  Sliders
 } from 'lucide-react';
 
-import { SERVICES, INDUSTRIES, OFFICES, INSIGHTS } from './data';
-import { TRANSLATIONS, generateBlueprint } from './translations';
+import { SERVICES, INDUSTRIES, INSIGHTS } from './data';
+import { TRANSLATIONS } from './translations';
 import { Service, Industry } from './types';
 
 // Anchor IDs for scrolling
@@ -39,7 +33,89 @@ const SECTION_IDS = {
   industries: 'industries-section',
   insights: 'insights-section',
   contact: 'contact-section',
+  advisoryProcess: 'advisory-process-section',
 };
+
+const ADVISORY_STAGES = [
+  {
+    num: '01',
+    title: 'CONFIDENTIAL INQUIRY',
+    description: 'We begin with a private review of the company, strategic objective, sector focus, target market, and relevant Korea–U.S. opportunity.'
+  },
+  {
+    num: '02',
+    title: 'STRATEGIC FIT ASSESSMENT',
+    description: 'Naveh evaluates whether the opportunity is suitable for Korean corporate, investor, or industrial engagement based on sector relevance, timing, credibility, and commercial logic.'
+  },
+  {
+    num: '03',
+    title: 'MANDATE & ENGAGEMENT SCOPE',
+    description: 'Where there is mutual fit, Naveh defines the engagement scope, target counterparties, advisory priorities, timeline, economics, and confidentiality framework.'
+  },
+  {
+    num: '04',
+    title: 'MARKET INTELLIGENCE & POSITIONING',
+    description: 'We develop the strategic narrative, sector thesis, counterparty rationale, and briefing materials required for senior-level Korean or U.S. discussions.'
+  },
+  {
+    num: '05',
+    title: 'COUNTERPARTY MAPPING & ORIGINATION',
+    description: 'Naveh identifies, qualifies, and prioritizes relevant investors, corporate partners, conglomerates, strategic buyers, or operating partners.'
+  },
+  {
+    num: '06',
+    title: 'EXECUTIVE ACCESS & MEETING STRATEGY',
+    description: 'We prepare clients for high-level conversations, including meeting objectives, stakeholder analysis, cultural context, negotiation posture, and follow-up strategy.'
+  },
+  {
+    num: '07',
+    title: 'STRUCTURING & EXECUTION SUPPORT',
+    description: 'Naveh supports the development of commercial partnerships, capital pathways, SPV structures, strategic investment discussions, market-entry plans, or transaction frameworks.'
+  },
+  {
+    num: '08',
+    title: 'RELATIONSHIP DEVELOPMENT',
+    description: 'After initial engagement, Naveh helps maintain momentum through follow-up materials, negotiation support, relationship management, and next-step execution planning.'
+  }
+];
+
+const ADVANTAGE_PILLARS = [
+  {
+    label: 'KOREA–U.S. FOCUS',
+    description: 'Dedicated advisory coverage across the Korean and American innovation markets.'
+  },
+  {
+    label: 'SENIOR-LEVEL RELATIONSHIPS',
+    description: 'Access-driven strategy for founders, investors, conglomerates, and corporate development teams.'
+  },
+  {
+    label: 'TARGET SECTORS',
+    description: 'AI infrastructure, mobility, EV, defense, dual-use technology, and strategic capital formation.'
+  },
+  {
+    label: 'EXECUTION DISCIPLINE',
+    description: 'From market mapping and briefing materials to introductions, transaction strategy, and partnership development.'
+  }
+];
+
+const PRIMARY_INTEREST_OPTIONS = [
+  'Korea–U.S. Market Entry',
+  'Strategic Partnership Origination',
+  'Capital Formation / SPV Strategy',
+  'Executive Access & Meeting Strategy',
+  'Sector Intelligence / Deal Advisory',
+  'Other',
+];
+
+const SECTOR_FOCUS_OPTIONS = [
+  'AI Infrastructure',
+  'Mobility / Automotive / EV',
+  'Defense & Dual-Use',
+  'Enterprise Technology',
+  'Capital Markets / Venture',
+  'Semiconductors / Advanced Manufacturing',
+  'Other',
+];
 
 export default function App() {
   const [lang, setLang] = useState<'en' | 'ko'>('en');
@@ -49,26 +125,16 @@ export default function App() {
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [selectedIndustry, setSelectedIndustry] = useState<Industry | null>(null);
 
-  // Roadmap Assessment state
-  const [assessmentOrigin, setAssessmentOrigin] = useState<'us' | 'kr'>('us');
-  const [assessmentIndustry, setAssessmentIndustry] = useState<string>('tech-ai');
-  const [assessmentTimeline, setAssessmentTimeline] = useState<string>('weeks');
-  const [assessmentId, setAssessmentId] = useState<number>(0); // Trigger re-render of roadmap animations
-  const [showAssessmentResult, setShowAssessmentResult] = useState<boolean>(false);
-  const [blueprintResult, setBlueprintResult] = useState<ReturnType<typeof generateBlueprint> | null>(null);
-
-  // Contact form submission states
+  // Contact form states
   const [formName, setFormName] = useState('');
   const [formCompany, setFormCompany] = useState('');
+  const [formTitle, setFormTitle] = useState('');
   const [formEmail, setFormEmail] = useState('');
-  const [formInterest, setFormInterest] = useState<'us-to-korea' | 'korea-to-us' | 'other'>('us-to-korea');
+  const [formPrimaryInterest, setFormPrimaryInterest] = useState(PRIMARY_INTEREST_OPTIONS[0]);
+  const [formSectorFocus, setFormSectorFocus] = useState(SECTOR_FOCUS_OPTIONS[0]);
   const [formMessage, setFormMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-
-  // Time zone live updating states
-  const [seoulTime, setSeoulTime] = useState('');
-  const [nyTime, setNYTime] = useState('');
 
   // Floating navbar style on scroll
   const [scrolled, setScrolled] = useState(false);
@@ -81,36 +147,6 @@ export default function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Update clocks every second
-  useEffect(() => {
-    const updateClocks = () => {
-      const getSeoul = () => {
-        return new Date().toLocaleTimeString(lang === 'en' ? 'en-US' : 'ko-KR', {
-          timeZone: 'Asia/Seoul',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: true,
-        });
-      };
-      const getNY = () => {
-        return new Date().toLocaleTimeString(lang === 'en' ? 'en-US' : 'ko-KR', {
-          timeZone: 'America/New_York',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: true,
-        });
-      };
-      setSeoulTime(getSeoul());
-      setNYTime(getNY());
-    };
-
-    updateClocks();
-    const interval = setInterval(updateClocks, 1000);
-    return () => clearInterval(interval);
-  }, [lang]);
-
   // Handle smooth scrolls
   const scrollTo = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -118,75 +154,52 @@ export default function App() {
       const headerOffset = 80;
       const elementPosition = element.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
+      window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
     }
   };
 
-  // Run dynamic strategy assessment simulation
-  const handleGenerateBlueprint = (e: React.FormEvent) => {
-    e.preventDefault();
-    const res = generateBlueprint(assessmentOrigin, assessmentIndustry, lang);
-    setBlueprintResult(res);
-    setShowAssessmentResult(true);
-    setAssessmentId((prev) => prev + 1);
-  };
-
-  // Run contact form submission demo
+  // Contact form submission
   const handleInquirySubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formName || !formEmail) return;
-
     setIsSubmitting(true);
     setTimeout(() => {
       setIsSubmitting(false);
       setIsSuccess(true);
-      // Reset after a period or let user expand
     }, 1200);
   };
 
   const handleResetForm = () => {
     setFormName('');
     setFormCompany('');
+    setFormTitle('');
     setFormEmail('');
-    setFormInterest('us-to-korea');
+    setFormPrimaryInterest(PRIMARY_INTEREST_OPTIONS[0]);
+    setFormSectorFocus(SECTOR_FOCUS_OPTIONS[0]);
     setFormMessage('');
     setIsSuccess(false);
   };
 
-  // Render proper icon based on metadata string - line art style like reference
+  // Render icon based on metadata string
   const renderIcon = (name: string) => {
-    const classes = "w-12 h-12 text-brand-primary stroke-[1] fill-none";
+    const classes = 'w-12 h-12 text-brand-primary stroke-[1] fill-none';
     switch (name) {
-      case 'DoorOpen':
-        return <DoorOpen className={classes} />;
-      case 'GitMerge':
-        return <GitMerge className={classes} />;
-      case 'Users':
-        return <Users className={classes} />;
-      case 'Globe':
-        return <Globe className={classes} />;
-      case 'Compass':
-        return <Compass className={classes} />;
-      case 'Cpu':
-        return <Cpu className={classes} />;
-      case 'Layers':
-        return <Layers className={classes} />;
-      case 'Zap':
-        return <Zap className={classes} />;
-      case 'Sparkles':
-        return <Sparkles className={classes} />;
-      default:
-        return <Compass className={classes} />;
+      case 'DoorOpen': return <DoorOpen className={classes} />;
+      case 'GitMerge': return <GitMerge className={classes} />;
+      case 'Users': return <Users className={classes} />;
+      case 'Globe': return <Globe className={classes} />;
+      case 'Compass': return <Compass className={classes} />;
+      case 'Cpu': return <Cpu className={classes} />;
+      case 'Layers': return <Layers className={classes} />;
+      case 'Zap': return <Zap className={classes} />;
+      case 'Sparkles': return <Sparkles className={classes} />;
+      default: return <Compass className={classes} />;
     }
   };
 
   return (
     <div id="application-root" className="min-h-screen bg-brand-surface font-sans text-brand-parchment relative selection:bg-brand-primary/30 selection:text-brand-primary overflow-x-hidden">
-      
+
       {/* HEADER NAV */}
       <header
         id="navbar-header"
@@ -211,47 +224,30 @@ export default function App() {
 
           {/* Desktop Links */}
           <nav id="desktop-links" className="hidden md:flex items-center gap-10 text-[13px] font-semibold tracking-[0.14em] uppercase text-brand-accent">
-            <button
-              onClick={() => scrollTo(SECTION_IDS.about)}
-              className="hover:text-brand-primary transition-colors cursor-pointer"
-            >
+            <button onClick={() => scrollTo(SECTION_IDS.about)} className="hover:text-brand-primary transition-colors cursor-pointer">
               {t.navAbout}
             </button>
-            <button
-              onClick={() => scrollTo(SECTION_IDS.services)}
-              className="hover:text-brand-primary transition-colors cursor-pointer"
-            >
+            <button onClick={() => scrollTo(SECTION_IDS.services)} className="hover:text-brand-primary transition-colors cursor-pointer">
               {t.navServices}
             </button>
-            <button
-              onClick={() => scrollTo(SECTION_IDS.industries)}
-              className="hover:text-brand-primary transition-colors cursor-pointer"
-            >
+            <button onClick={() => scrollTo(SECTION_IDS.industries)} className="hover:text-brand-primary transition-colors cursor-pointer">
               {t.navIndustries}
             </button>
-            <button
-              onClick={() => scrollTo(SECTION_IDS.insights)}
-              className="hover:text-brand-primary transition-colors cursor-pointer"
-            >
+            <button onClick={() => scrollTo(SECTION_IDS.insights)} className="hover:text-brand-primary transition-colors cursor-pointer">
               {t.navInsights}
             </button>
-            <button
-              onClick={() => scrollTo(SECTION_IDS.contact)}
-              className="hover:text-brand-primary transition-colors cursor-pointer"
-            >
+            <button onClick={() => scrollTo(SECTION_IDS.contact)} className="hover:text-brand-primary transition-colors cursor-pointer">
               {t.navContact}
             </button>
           </nav>
 
-          {/* Language Selector Dropdown */}
+          {/* Language Selector + Top-Right CTA */}
           <div id="language-and-cta" className="flex items-center gap-6">
             <div className="relative inline-flex items-center border border-brand-outline-variant/60 bg-brand-dim/50 p-1">
               <button
                 onClick={() => setLang('en')}
                 className={`px-3 py-1 text-[11px] font-semibold tracking-wider transition-all duration-300 ${
-                  lang === 'en'
-                    ? 'bg-brand-primary text-brand-on-primary'
-                    : 'text-brand-accent hover:text-brand-parchment'
+                  lang === 'en' ? 'bg-brand-primary text-brand-on-primary' : 'text-brand-accent hover:text-brand-parchment'
                 }`}
               >
                 EN
@@ -259,9 +255,7 @@ export default function App() {
               <button
                 onClick={() => setLang('ko')}
                 className={`px-3 py-1 text-[11px] font-semibold tracking-wider transition-all duration-300 ${
-                  lang === 'ko'
-                    ? 'bg-brand-primary text-brand-on-primary'
-                    : 'text-brand-accent hover:text-brand-parchment'
+                  lang === 'ko' ? 'bg-brand-primary text-brand-on-primary' : 'text-brand-accent hover:text-brand-parchment'
                 }`}
               >
                 KO
@@ -272,7 +266,7 @@ export default function App() {
               onClick={() => scrollTo(SECTION_IDS.contact)}
               className="hidden lg:inline-flex border border-brand-primary/40 px-6 py-2.5 text-[12px] font-semibold tracking-[0.14em] text-brand-primary hover:bg-brand-primary/10 transition-all duration-300 hover:border-brand-primary active:scale-[0.98]"
             >
-              {t.contactSubmitButton}
+              REQUEST STRATEGIC BRIEFING
             </button>
           </div>
         </div>
@@ -283,23 +277,23 @@ export default function App() {
         id="hero-banner-section"
         className="relative min-h-screen flex items-center justify-center pt-24 shrink-0 overflow-hidden"
       >
-        {/* Background Image with Deep Midnight Grayscale Blend */}
+        {/* Background Image — reduced overlay for more visible skyline */}
         <div className="absolute inset-0 z-0">
           <motion.img
             initial={{ scale: 1.15, opacity: 0 }}
-            animate={{ scale: 1, opacity: 0.32 }}
+            animate={{ scale: 1, opacity: 0.48 }}
             transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1] }}
             src="/background.png"
             alt="U.S. Korea Bridge Concept"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover brightness-110 contrast-110"
             referrerPolicy="no-referrer"
           />
-          {/* Edge and Bottom gradients for elite atmospheric integration */}
-          <div className="absolute inset-0 bg-gradient-to-b from-brand-surface/30 via-brand-surface/65 to-brand-surface"></div>
+          {/* Lighter overlay to keep luxury dark mood while improving visibility */}
+          <div className="absolute inset-0 bg-gradient-to-b from-brand-surface/20 via-brand-surface/50 to-brand-surface"></div>
           <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-brand-surface to-transparent"></div>
         </div>
 
-        {/* Content Box - Left aligned like reference */}
+        {/* Content Box */}
         <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 text-left flex flex-col items-start">
           <motion.h1
             initial={{ opacity: 0, y: 25 }}
@@ -323,27 +317,36 @@ export default function App() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.65 }}
+            className="flex flex-col sm:flex-row items-start sm:items-center gap-4"
           >
+            {/* Primary CTA — solid filled, more prominent */}
             <button
-              onClick={() => scrollTo(SECTION_IDS.about)}
-              className="group inline-flex items-center gap-2 text-[13px] font-bold tracking-[0.2em] text-brand-primary hover:text-brand-parchment transition-colors duration-300"
+              onClick={() => scrollTo(SECTION_IDS.contact)}
+              className="group inline-flex items-center gap-2 bg-brand-primary text-brand-on-primary px-7 py-3.5 text-[13px] font-bold tracking-[0.18em] hover:bg-brand-parchment hover:text-brand-surface transition-all duration-300 active:scale-[0.98]"
             >
               {t.learnMoreButton}
               <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
             </button>
-          </motion.div>
 
+            {/* Secondary CTA — outlined / understated */}
+            <button
+              onClick={() => scrollTo(SECTION_IDS.industries)}
+              className="group inline-flex items-center gap-2 border border-brand-parchment/30 text-brand-accent px-7 py-3.5 text-[13px] font-semibold tracking-[0.18em] hover:border-brand-primary/60 hover:text-brand-primary transition-all duration-300"
+            >
+              {t.heroSecondaryButton}
+            </button>
+          </motion.div>
         </div>
       </section>
 
-      {/* SERVICES SECTION */}
+      {/* STRATEGIC SERVICES SECTION */}
       <section
         id={SECTION_IDS.services}
         className="py-24 sm:py-32 relative border-t border-brand-outline-variant/20 bg-brand-dim"
       >
         <div className="max-w-7xl mx-auto px-6 md:px-12">
-          {/* Section Heading with structural label lines */}
-          <div className="flex items-center justify-between mb-16">
+          {/* Section heading */}
+          <div className="flex items-center justify-between mb-8">
             <div className="w-full flex items-center">
               <div className="h-[1px] flex-grow bg-brand-outline-variant/30"></div>
               <span className="mx-6 text-[11px] font-semibold tracking-[0.25em] text-brand-outline uppercase block text-center whitespace-nowrap">
@@ -353,7 +356,12 @@ export default function App() {
             </div>
           </div>
 
-          {/* Simple Grid - clean like reference */}
+          {/* Intro copy */}
+          <p className="text-center text-sm font-light text-brand-accent/80 max-w-2xl mx-auto leading-relaxed mb-16">
+            {t.servicesIntro}
+          </p>
+
+          {/* Services Grid */}
           <div id="services-grid" className="grid grid-cols-1 md:grid-cols-5 gap-4">
             {SERVICES.map((service, index) => (
               <motion.div
@@ -365,14 +373,12 @@ export default function App() {
                 onClick={() => setSelectedService(service)}
                 className="group cursor-pointer py-8 px-4 flex flex-col items-center text-center"
               >
-                <div className="mb-5">
-                  {renderIcon(service.iconName)}
-                </div>
+                <div className="mb-5">{renderIcon(service.iconName)}</div>
                 <h3 className="font-sans text-[11px] font-bold tracking-[0.18em] uppercase text-brand-parchment group-hover:text-brand-primary transition-colors duration-300 mb-3">
                   {service.title}
                 </h3>
                 <p className="text-sm text-brand-accent/70 font-light leading-relaxed">
-                  {lang === 'ko' ? service.description : service.description}
+                  {service.description}
                 </p>
               </motion.div>
             ))}
@@ -391,202 +397,81 @@ export default function App() {
         </div>
       </section>
 
-      {/* INTERACTIVE BLUEPRINT CALCULATOR */}
+      {/* ADVISORY PROCESS SECTION */}
       <section
-        id="interactive-blueprint-calculator"
-        className="py-24 relative bg-brand-surface border-y border-brand-outline-variant/20"
+        id={SECTION_IDS.advisoryProcess}
+        className="py-24 sm:py-32 relative bg-brand-surface border-y border-brand-outline-variant/20"
       >
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="text-center mb-14">
+        <div className="max-w-7xl mx-auto px-6 md:px-12">
+          <div className="text-center mb-16">
             <span className="text-[11px] font-bold tracking-[0.2em] text-brand-primary uppercase block mb-4">
-              METHODOLOGICAL TESTING ENGINE
+              ADVISORY PROCESS
             </span>
             <h2 className="font-serif text-3xl md:text-[42px] tracking-tight mb-5 text-brand-parchment leading-tight">
-              {t.assessmentTitle}
+              A disciplined path from strategic interest to cross-border execution.
             </h2>
             <p className="text-base font-light text-brand-accent max-w-2xl mx-auto leading-relaxed">
-              {t.assessmentSubtitle}
+              Naveh helps clients move from initial market opportunity to qualified counterparties, executive-level conversations, and structured commercial or capital outcomes.
             </p>
           </div>
 
-          <form onSubmit={handleGenerateBlueprint} className="bg-brand-card p-10 border border-brand-outline-variant/20">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
-              {/* Origin Selection */}
-              <div>
-                <label className="block text-[12px] font-semibold tracking-wider text-brand-primary mb-5 uppercase">
-                  {t.assessmentOriginLabel}
-                </label>
-                <div className="flex flex-col gap-4">
-                  <label className="flex items-center gap-3 cursor-pointer group text-sm text-brand-accent">
-                    <input
-                      type="radio"
-                      name="origin"
-                      checked={assessmentOrigin === 'us'}
-                      onChange={() => setAssessmentOrigin('us')}
-                      className="accent-brand-primary rounded-none border border-brand-outline w-4 h-4"
-                    />
-                    <span className={assessmentOrigin === 'us' ? 'text-brand-primary font-medium' : 'group-hover:text-brand-parchment'} >
-                      {t.assessmentOriginUS}
-                    </span>
-                  </label>
-                  <label className="flex items-center gap-3 cursor-pointer group text-sm text-brand-accent">
-                    <input
-                      type="radio"
-                      name="origin"
-                      checked={assessmentOrigin === 'kr'}
-                      onChange={() => setAssessmentOrigin('kr')}
-                      className="accent-brand-primary rounded-none border border-brand-outline w-4 h-4"
-                    />
-                    <span className={assessmentOrigin === 'kr' ? 'text-brand-primary font-medium' : 'group-hover:text-brand-parchment'} >
-                      {t.assessmentOriginKR}
-                    </span>
-                  </label>
+          {/* Timeline — 2 rows of 4 on desktop, vertical on mobile */}
+          <div className="space-y-12 md:space-y-16">
+            {[ADVISORY_STAGES.slice(0, 4), ADVISORY_STAGES.slice(4, 8)].map((row, rowIndex) => (
+              <div key={rowIndex} className="relative">
+                {/* Connecting line — desktop only */}
+                <div className="hidden md:block absolute top-4 left-0 right-0 h-[1px] bg-brand-outline-variant/25 z-0" />
+
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-6">
+                  {row.map((stage, idx) => (
+                    <motion.div
+                      key={stage.num}
+                      initial={{ opacity: 0, y: 16 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: '-40px' }}
+                      transition={{ duration: 0.5, delay: idx * 0.08 }}
+                      className="relative flex flex-col md:items-center md:text-center"
+                    >
+                      {/* Stage number — gold, above the connecting line */}
+                      <div className="relative z-10 inline-flex items-center justify-center w-8 h-8 bg-brand-surface border border-brand-primary mb-4 shrink-0">
+                        <span className="text-[11px] font-bold text-brand-primary font-mono">
+                          {stage.num}
+                        </span>
+                      </div>
+                      <h4 className="text-[10px] font-bold tracking-[0.18em] text-brand-parchment uppercase mb-2">
+                        {stage.title}
+                      </h4>
+                      <p className="text-xs text-brand-accent/75 font-light leading-relaxed">
+                        {stage.description}
+                      </p>
+                    </motion.div>
+                  ))}
                 </div>
               </div>
+            ))}
+          </div>
 
-              {/* Targets Industry Selection */}
-              <div>
-                <label className="block text-[12px] font-semibold tracking-wider text-brand-primary mb-5 uppercase">
-                  {t.assessmentIndustryLabel}
-                </label>
-                <select
-                  value={assessmentIndustry}
-                  onChange={(e) => setAssessmentIndustry(e.target.value)}
-                  className="w-full bg-brand-surface border border-brand-outline-variant/60 text-sm px-4 py-3 font-light text-brand-parchment focus:border-brand-primary focus:outline-none rounded-none"
-                >
-                  <option value="tech-ai">{t.assessmentIndustryTech}</option>
-                  <option value="semiconductors-mfg">{t.assessmentIndustryMfg}</option>
-                  <option value="energy-cleantech">{t.assessmentIndustryEnergy}</option>
-                  <option value="consumer-lifestyle">{t.assessmentIndustryConsumer}</option>
-                </select>
-              </div>
-
-              {/* Timeline Selection */}
-              <div>
-                <label className="block text-[12px] font-semibold tracking-wider text-brand-primary mb-5 uppercase">
-                  {t.assessmentTimelineLabel}
-                </label>
-                <div className="flex flex-col gap-4">
-                  <label className="flex items-center gap-3 cursor-pointer group text-sm text-brand-accent">
-                    <input
-                      type="radio"
-                      name="timeline"
-                      checked={assessmentTimeline === 'weeks'}
-                      onChange={() => setAssessmentTimeline('weeks')}
-                      className="accent-brand-primary w-4 h-4"
-                    />
-                    <span>{t.assessmentTimelineWeeks}</span>
-                  </label>
-                  <label className="flex items-center gap-3 cursor-pointer group text-sm text-brand-accent">
-                    <input
-                      type="radio"
-                      name="timeline"
-                      checked={assessmentTimeline === 'months'}
-                      onChange={() => setAssessmentTimeline('months')}
-                      className="accent-brand-primary w-4 h-4"
-                    />
-                    <span>{t.assessmentTimelineMonths}</span>
-                  </label>
-                  <label className="flex items-center gap-3 cursor-pointer group text-sm text-brand-accent">
-                    <input
-                      type="radio"
-                      name="timeline"
-                      checked={assessmentTimeline === 'planning'}
-                      onChange={() => setAssessmentTimeline('planning')}
-                      className="accent-brand-primary w-4 h-4"
-                    />
-                    <span>{t.assessmentTimelineImmediate}</span>
-                  </label>
-                </div>
-              </div>
-            </div>
-
+          {/* CTA */}
+          <div className="text-center mt-16">
             <button
-              type="submit"
-              className="w-full bg-brand-primary text-brand-on-primary hover:bg-brand-parchment hover:text-brand-surface transition-colors duration-300 py-4 text-sm font-bold tracking-[0.18em] uppercase rounded-none"
+              onClick={() => scrollTo(SECTION_IDS.contact)}
+              className="inline-flex items-center gap-2 border border-brand-primary/50 px-8 py-3 text-[12px] font-bold tracking-[0.18em] text-brand-primary hover:bg-brand-primary/10 transition-all duration-300"
             >
-              {t.assessmentGenerateButton}
+              REQUEST STRATEGIC BRIEFING <ArrowRight className="w-4 h-4" />
             </button>
-          </form>
-
-          {/* RESULTS AREA WITH DYNAMIC FADE */}
-          <AnimatePresence mode="wait">
-            {showAssessmentResult && blueprintResult && (
-              <motion.div
-                key={assessmentId}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.5 }}
-                className="mt-8 bg-brand-card-high/35 border border-brand-primary/40 p-8 text-left"
-              >
-                <div className="flex items-center justify-between border-b border-brand-outline-variant/30 pb-4 mb-6">
-                  <h4 className="text-xs font-bold tracking-[0.2em] text-brand-primary uppercase">
-                    {t.assessmentResultTitle}
-                  </h4>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] tracking-wider text-brand-accent">Strategic Alignment Match:</span>
-                    <span className="text-sm font-bold text-brand-primary font-mono">{blueprintResult.alignmentScore}</span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                  <div>
-                    <h5 className="text-[11px] font-semibold tracking-wider text-brand-primary mb-3 uppercase">
-                      ⚠ {t.assessmentResultChallengeTitle}
-                    </h5>
-                    <ul className="space-y-3.5 text-xs font-light text-brand-accent">
-                      {blueprintResult.challenges.map((challenge, idx) => (
-                        <li key={idx} className="flex gap-2 items-start leading-relaxed">
-                          <span className="text-red-400 font-bold">•</span>
-                          {challenge}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h5 className="text-[11px] font-semibold tracking-wider text-brand-primary mb-3 uppercase">
-                      🛡 {t.assessmentResultStrategyTitle}
-                    </h5>
-                    <ul className="space-y-3.5 text-xs font-light text-brand-accent">
-                      {blueprintResult.strategies.map((strategy, idx) => (
-                        <li key={idx} className="flex gap-2 items-start leading-relaxed">
-                          <Check className="w-3.5 h-3.5 text-brand-primary shrink-0 mt-0.5" />
-                          {strategy}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="text-center pt-2 border-t border-brand-outline-variant/30">
-                  <button
-                    onClick={() => {
-                      const subject = encodeURIComponent("Strategic Partnership Briefing Request");
-                      const body = encodeURIComponent(`Hello Naveh Advisory Team, \n\nWe have run our roadmap simulation. \nOrigin: ${assessmentOrigin === 'us' ? 'United States' : 'South Korea'} \nIndustry category: ${assessmentIndustry} \n\nWe would like to request an executive briefing to discuss options.`);
-                      window.location.href = `mailto:nyc@navehconsulting.com?subject=${subject}&body=${body}`;
-                    }}
-                    className="inline-flex items-center gap-2 text-xs font-bold tracking-[0.2em] text-brand-primary hover:text-brand-parchment transition-colors duration-300"
-                  >
-                    {t.assessmentResultCallToAction} <ArrowUpRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          </div>
         </div>
       </section>
 
-      {/* SOVEREIGN ADVANTAGE SECTION (About / Stats with the tall Skyscraper image) */}
+      {/* THE NAVEH ADVANTAGE SECTION */}
       <section
         id={SECTION_IDS.about}
         className="py-24 sm:py-32 relative bg-brand-surface"
       >
         <div className="max-w-7xl mx-auto px-6 md:px-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-stretch">
-            
-            {/* Visual Column (Skyscraper photo as seen in design image) */}
+
+            {/* Visual Column */}
             <div className="lg:col-span-5 relative group overflow-hidden min-h-[400px] lg:min-h-[580px]">
               <div className="absolute inset-x-0 top-0 h-[1px] bg-brand-primary z-10 opacity-70"></div>
               <img
@@ -595,53 +480,49 @@ export default function App() {
                 className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 filter brightness-[0.75] contrast-[1.12] saturate-[0.8]"
                 referrerPolicy="no-referrer"
               />
-              {/* Tone filters with light overlay to integrate skyscraper layout */}
               <div className="absolute inset-0 bg-brand-surface/20 mix-blend-multiply"></div>
               <div className="absolute inset-0 bg-gradient-to-t from-brand-surface via-transparent to-transparent"></div>
             </div>
 
-            {/* Stories & Editorial Column */}
+            {/* Content Column */}
             <div className="lg:col-span-7 flex flex-col justify-center">
               <span className="text-[12px] font-semibold tracking-[0.22em] text-brand-primary uppercase block mb-4">
                 {t.strategicAdvantageLabel}
               </span>
-              
-              <h2 className="font-serif text-3xl sm:text-4.5xl leading-tight mb-8 tracking-wide text-brand-parchment">
+
+              <h2 className="font-serif text-3xl sm:text-4xl leading-tight mb-8 tracking-wide text-brand-parchment">
                 {t.advantageTitle}
               </h2>
 
-              <blockquote className="border-l-2 border-brand-primary/40 pl-6 my-8 italic text-base md:text-lg font-light leading-relaxed text-brand-accent/90">
-                {t.advantageQuote}
-              </blockquote>
+              <p className="text-sm font-light text-brand-accent/85 leading-relaxed mb-4">
+                {t.advantageBody}
+              </p>
 
-              <div className="h-[1px] bg-brand-outline-variant/35 w-full my-8"></div>
+              <p className="text-sm font-light text-brand-accent/85 leading-relaxed mb-10">
+                {t.advantageSupportingPara}
+              </p>
 
-              {/* High Contrast Industrial Statistics Grid */}
-              <div className="grid grid-cols-2 gap-8">
-                <div>
-                  <div className="font-serif text-4xl md:text-5xl lg:text-6xl text-brand-primary font-light mb-2">
-                    {t.statsExperienceValue}
-                  </div>
-                  <div className="text-[10px] font-bold tracking-[0.2em] text-brand-outline uppercase">
-                    {t.statsExperienceLabel}
-                  </div>
-                </div>
+              <div className="h-[1px] bg-brand-outline-variant/35 w-full mb-10"></div>
 
-                <div>
-                  <div className="font-serif text-4xl md:text-5xl lg:text-6xl text-brand-primary font-light mb-2">
-                    {t.statsEntriesValue}
+              {/* Four Credibility Pillars — 2×2 grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {ADVANTAGE_PILLARS.map((pillar, idx) => (
+                  <div key={idx} className="border-l border-brand-primary/40 pl-5">
+                    <h4 className="text-[10px] font-bold tracking-[0.2em] text-brand-primary uppercase mb-2">
+                      {pillar.label}
+                    </h4>
+                    <p className="text-xs font-light text-brand-accent/80 leading-relaxed">
+                      {pillar.description}
+                    </p>
                   </div>
-                  <div className="text-[10px] font-bold tracking-[0.2em] text-brand-outline uppercase">
-                    {t.statsEntriesLabel}
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* TARGET INDUSTRIES SHOWCASE */}
+      {/* STRATEGIC SECTORS SECTION */}
       <section
         id={SECTION_IDS.industries}
         className="py-24 sm:py-32 relative bg-brand-dim border-t border-brand-outline-variant/25"
@@ -649,11 +530,14 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-6 md:px-12">
           <div className="text-center mb-16">
             <span className="text-[11px] font-bold tracking-[0.2em] text-brand-primary uppercase block mb-4">
-              INDUSTRIAL SPANS
+              STRATEGIC SECTORS
             </span>
             <h2 className="font-serif text-3xl md:text-[42px] tracking-tight mb-5 text-brand-parchment leading-tight">
-              {lang === 'ko' ? '주요 특화 산업 영역' : 'Target Cross-Border Industries'}
+              Where Korean Industrial Demand Meets U.S. Innovation
             </h2>
+            <p className="text-sm font-light text-brand-accent/80 max-w-2xl mx-auto leading-relaxed mb-6">
+              Focused coverage across sectors where Korean corporate strategy, U.S. growth-stage technology, and cross-border capital formation converge.
+            </p>
             <div className="w-20 h-[2px] bg-brand-primary mx-auto"></div>
           </div>
 
@@ -666,8 +550,11 @@ export default function App() {
               >
                 <div>
                   <div className="flex justify-between items-center mb-6">
-                    <span className="text-[12px] font-bold tracking-widest text-brand-primary font-mono uppercase">
-                      {ind.id.replace('-', ' ')}
+                    <span className="text-[11px] font-bold tracking-widest text-brand-primary font-mono uppercase">
+                      {ind.id === 'ai-infrastructure' ? 'AI INFRASTRUCTURE' :
+                       ind.id === 'mobility-ev' ? 'MOBILITY / EV' :
+                       ind.id === 'defense-dual-use' ? 'DEFENSE / DUAL-USE' :
+                       'SEMICONDUCTORS'}
                     </span>
                     <ArrowUpRight className="w-5 h-5 text-brand-outline-variant group-hover:text-brand-primary transition-colors" />
                   </div>
@@ -680,7 +567,7 @@ export default function App() {
                 </div>
 
                 <div className="mt-8 pt-4 border-t border-brand-outline-variant/25 text-[11px] font-bold tracking-widest text-brand-outline group-hover:text-brand-primary uppercase transition-colors">
-                  {lang === 'ko' ? '세부 자문 사항 확인 →' : 'EXPLORE SCOPE →'}
+                  {lang === 'ko' ? '섹터 탐색 →' : 'EXPLORE SECTOR →'}
                 </div>
               </div>
             ))}
@@ -688,7 +575,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* BRIEFINGS HUB (Insights Section) */}
+      {/* INTELLIGENCE / INSIGHTS SECTION */}
       <section
         id={SECTION_IDS.insights}
         className="py-24 sm:py-32 relative bg-brand-surface border-t border-brand-outline-variant/20"
@@ -696,7 +583,7 @@ export default function App() {
         <div className="max-w-5xl mx-auto px-6">
           <div className="text-center mb-16">
             <span className="text-[10px] font-bold tracking-[0.20em] text-brand-primary uppercase block mb-3">
-              SELECT INTELLIGENCE briefings
+              SELECT INTELLIGENCE BRIEFINGS
             </span>
             <h2 className="font-serif text-3xl md:text-4xl text-brand-parchment tracking-tight">
               {lang === 'ko' ? '전략 분석 리포트' : 'Publications & Briefings'}
@@ -704,7 +591,7 @@ export default function App() {
           </div>
 
           <div className="space-y-12">
-            {INSIGHTS.map((article, idx) => (
+            {INSIGHTS.map((article) => (
               <div
                 key={article.id}
                 className="group border border-brand-outline-variant/25 hover:border-brand-primary/45 p-8 bg-brand-card/30 hover:bg-brand-card/60 transition-all duration-300"
@@ -731,19 +618,15 @@ export default function App() {
                   {article.summary}
                 </p>
 
-                {/* Inline briefing expansions */}
                 <div className="pt-4 border-t border-brand-outline-variant/20 flex justify-between items-center">
                   <button
-                    onClick={() => {
-                      /* Deeper briefing modal open */
-                      alert(`${article.title}\n\n${article.content}`);
-                    }}
+                    onClick={() => alert(`${article.title}\n\n${article.content}`)}
                     className="inline-flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-brand-primary hover:underline uppercase"
                   >
                     {t.readMoreButton} <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                   <span className="text-[10px] tracking-widest text-brand-outline invisible group-hover:visible font-semibold uppercase">
-                    NAVEH INTEL RETAINER
+                    NAVEH INTELLIGENCE
                   </span>
                 </div>
               </div>
@@ -752,7 +635,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* EXECUTIVE CONTACT DISCUSSIONS */}
+      {/* CONFIDENTIAL INQUIRY FORM SECTION */}
       <section
         id={SECTION_IDS.contact}
         className="py-24 sm:py-32 relative bg-brand-surface border-t border-brand-outline-variant/20"
@@ -760,17 +643,19 @@ export default function App() {
         <div className="max-w-3xl mx-auto px-6">
           <div className="text-center mb-14">
             <span className="text-[11px] font-bold tracking-[0.22em] text-brand-primary uppercase block mb-4">
-              METHODOLOGY RESERVATIONS
+              {t.contactEyebrow}
             </span>
             <h2 className="font-serif text-3xl md:text-5xl text-brand-parchment tracking-tight mb-5">
               {t.contactTitle}
             </h2>
-            <p className="text-base font-light text-brand-accent leading-relaxed max-w-xl mx-auto">
+            <p className="text-base font-light text-brand-accent leading-relaxed max-w-xl mx-auto mb-3">
+              {t.contactIntro}
+            </p>
+            <p className="text-sm font-light text-brand-accent/70 leading-relaxed max-w-xl mx-auto">
               {t.contactSubtitle}
             </p>
           </div>
 
-          {/* Upscale Stationery style form with only bottom borders */}
           <div className="bg-brand-card p-10 border border-brand-outline-variant/20 relative">
             {isSuccess ? (
               <motion.div
@@ -791,15 +676,14 @@ export default function App() {
                   onClick={handleResetForm}
                   className="border border-brand-outline-variant px-6 py-2 text-[10px] font-bold tracking-[0.2em] text-brand-parchment hover:border-brand-primary hover:text-brand-primary transition-colors uppercase rounded-none bg-transparent"
                 >
-                  SUBMIT NEW FORM Inquiry
+                  SUBMIT NEW INQUIRY
                 </button>
               </motion.div>
             ) : (
-              <form onSubmit={handleInquirySubmit} className="space-y-12">
+              <form onSubmit={handleInquirySubmit} className="space-y-10">
 
-                {/* Double Column fields */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                  {/* Name field */}
+                {/* Row 1: Name + Company */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                   <div className="group flex flex-col">
                     <label className="text-[11px] font-bold tracking-[0.2em] text-brand-outline-variant group-focus-within:text-brand-primary transition-colors mb-3 uppercase">
                       {t.contactNameLabel}
@@ -809,12 +693,10 @@ export default function App() {
                       required
                       value={formName}
                       onChange={(e) => setFormName(e.target.value)}
-                      placeholder="e.g. Robert Vance"
+                      placeholder="e.g. James Park"
                       className="w-full bg-transparent text-brand-parchment py-3 text-base border-b-2 border-brand-outline-variant/60 focus:border-brand-primary focus:outline-none placeholder-brand-outline-variant/30 font-light rounded-none transition-colors"
                     />
                   </div>
-
-                  {/* Company/Corp field */}
                   <div className="group flex flex-col">
                     <label className="text-[11px] font-bold tracking-[0.2em] text-brand-outline-variant group-focus-within:text-brand-primary transition-colors mb-3 uppercase">
                       {t.contactCompanyLabel}
@@ -823,15 +705,26 @@ export default function App() {
                       type="text"
                       value={formCompany}
                       onChange={(e) => setFormCompany(e.target.value)}
-                      placeholder="Vance Aerospace Holdings"
+                      placeholder="Company / Organization"
                       className="w-full bg-transparent text-brand-parchment py-3 text-base border-b-2 border-brand-outline-variant/60 focus:border-brand-primary focus:outline-none placeholder-brand-outline-variant/30 font-light rounded-none transition-colors"
                     />
                   </div>
                 </div>
 
-                {/* Email and Interest Field */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                  {/* Business Email */}
+                {/* Row 2: Title + Email */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                  <div className="group flex flex-col">
+                    <label className="text-[11px] font-bold tracking-[0.2em] text-brand-outline-variant group-focus-within:text-brand-primary transition-colors mb-3 uppercase">
+                      {t.contactTitleLabel}
+                    </label>
+                    <input
+                      type="text"
+                      value={formTitle}
+                      onChange={(e) => setFormTitle(e.target.value)}
+                      placeholder="e.g. Chief Executive Officer"
+                      className="w-full bg-transparent text-brand-parchment py-3 text-base border-b-2 border-brand-outline-variant/60 focus:border-brand-primary focus:outline-none placeholder-brand-outline-variant/30 font-light rounded-none transition-colors"
+                    />
+                  </div>
                   <div className="group flex flex-col">
                     <label className="text-[11px] font-bold tracking-[0.2em] text-brand-outline-variant group-focus-within:text-brand-primary transition-colors mb-3 uppercase">
                       {t.contactEmailLabel}
@@ -841,47 +734,63 @@ export default function App() {
                       required
                       value={formEmail}
                       onChange={(e) => setFormEmail(e.target.value)}
-                      placeholder="r.vance@vanceaero.com"
+                      placeholder="name@company.com"
                       className="w-full bg-transparent text-brand-parchment py-3 text-base border-b-2 border-brand-outline-variant/60 focus:border-brand-primary focus:outline-none placeholder-brand-outline-variant/30 font-light rounded-none transition-colors"
                     />
                   </div>
+                </div>
 
-                  {/* Operational Focus Choice */}
+                {/* Row 3: Primary Area of Interest + Sector Focus */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                   <div className="group flex flex-col">
                     <label className="text-[11px] font-bold tracking-[0.2em] text-brand-outline-variant group-focus-within:text-brand-primary transition-colors mb-3 uppercase">
-                      {t.contactInterestLabel}
+                      {t.contactPrimaryInterestLabel}
                     </label>
                     <select
-                      value={formInterest}
-                      onChange={(e) => setFormInterest(e.target.value as any)}
+                      value={formPrimaryInterest}
+                      onChange={(e) => setFormPrimaryInterest(e.target.value)}
                       className="w-full bg-transparent text-brand-parchment py-3 text-base border-b-2 border-brand-outline-variant/60 focus:border-brand-primary focus:outline-none rounded-none font-light transition-colors"
                     >
-                      <option value="us-to-korea" className="bg-brand-card">{t.contactInterestUStoKR}</option>
-                      <option value="korea-to-us" className="bg-brand-card">{t.contactInterestKRtoUS}</option>
-                      <option value="other" className="bg-brand-card">{t.contactInterestOther}</option>
+                      {PRIMARY_INTEREST_OPTIONS.map((opt) => (
+                        <option key={opt} value={opt} className="bg-brand-card">{opt}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="group flex flex-col">
+                    <label className="text-[11px] font-bold tracking-[0.2em] text-brand-outline-variant group-focus-within:text-brand-primary transition-colors mb-3 uppercase">
+                      {t.contactSectorFocusLabel}
+                    </label>
+                    <select
+                      value={formSectorFocus}
+                      onChange={(e) => setFormSectorFocus(e.target.value)}
+                      className="w-full bg-transparent text-brand-parchment py-3 text-base border-b-2 border-brand-outline-variant/60 focus:border-brand-primary focus:outline-none rounded-none font-light transition-colors"
+                    >
+                      {SECTOR_FOCUS_OPTIONS.map((opt) => (
+                        <option key={opt} value={opt} className="bg-brand-card">{opt}</option>
+                      ))}
                     </select>
                   </div>
                 </div>
 
-                {/* Scope Briefing Box */}
+                {/* Brief Description of Objectives */}
                 <div className="group flex flex-col">
                   <label className="text-[11px] font-bold tracking-[0.2em] text-brand-outline-variant group-focus-within:text-brand-primary transition-colors mb-3 uppercase">
-                    {t.contactMessageLabel}
+                    {t.contactObjectivesLabel}
                   </label>
                   <textarea
-                    rows={4}
+                    rows={5}
                     value={formMessage}
                     onChange={(e) => setFormMessage(e.target.value)}
-                    placeholder="Provide a high-level overview of target timeline, industrial sectors, and preliminary barriers."
+                    placeholder="Please provide a short overview of your company, target market, strategic objective, timeline, and any relevant counterparties or transaction context."
                     className="w-full bg-transparent text-brand-parchment py-3 text-base border-b-2 border-brand-outline-variant/60 focus:border-brand-primary focus:outline-none placeholder-brand-outline-variant/30 font-light rounded-none resize-none transition-colors"
                   />
                 </div>
 
-                {/* Submission button with load */}
+                {/* Submit Button */}
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full border-2 border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-brand-on-primary transition-all duration-400 py-5 text-sm font-bold tracking-[0.2em] uppercase rounded-none disabled:opacity-50 inline-flex items-center justify-center gap-3"
+                  className="w-full border-2 border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-brand-on-primary transition-all duration-300 py-5 text-sm font-bold tracking-[0.2em] uppercase rounded-none disabled:opacity-50 inline-flex items-center justify-center gap-3"
                 >
                   {isSubmitting ? (
                     <span className="w-5 h-5 border-2 border-brand-primary border-t-transparent rounded-full animate-spin"></span>
@@ -891,6 +800,11 @@ export default function App() {
                     </>
                   )}
                 </button>
+
+                {/* Disclaimer */}
+                <p className="text-[10px] font-light text-brand-outline/70 leading-relaxed text-center pt-2">
+                  {t.contactDisclaimer}
+                </p>
               </form>
             )}
           </div>
@@ -910,19 +824,19 @@ export default function App() {
               </span>
               <div className="h-4 w-[1px] bg-brand-outline-variant"></div>
               <span className="text-[11px] tracking-wider text-brand-outline/80">
-                © 2026 Naveh Consulting. All rights reserved.
+                © 2026 Naveh Partners. All rights reserved.
               </span>
             </div>
 
             <div className="flex flex-wrap justify-center items-center gap-8 text-[11px] text-brand-outline font-semibold tracking-wider uppercase">
               <button
-                onClick={() => alert(`Naveh Executive NDA & Confidential Privacy Commitment is enacted.`)}
+                onClick={() => alert('Naveh Executive NDA & Confidential Privacy Commitment is enacted.')}
                 className="hover:text-brand-primary transition-colors cursor-pointer"
               >
                 {t.privacyPolicy}
               </button>
               <button
-                onClick={() => alert(`Naveh Strategic Retainer Terms govern all initial advisories.`)}
+                onClick={() => alert('Naveh Strategic Retainer Terms govern all initial advisories.')}
                 className="hover:text-brand-primary transition-colors cursor-pointer"
               >
                 {t.termsOfService}
@@ -935,31 +849,24 @@ export default function App() {
               >
                 {t.linkedIn}
               </a>
-              <button
-                onClick={() => scrollTo('global-clocks-section')}
-                className="hover:text-brand-primary transition-colors cursor-pointer"
-              >
-                Global Offices
-              </button>
             </div>
           </div>
 
           <div className="h-[1px] bg-brand-outline-variant/20 w-full mb-8"></div>
 
           <div className="text-center text-[10px] tracking-widest text-brand-outline-variant uppercase">
-            REGULated in alignment with international bilateral compliance codes. SECURE DATA STORAGE GRADE IV FIPS-140 COMPLIANT.
+            Korea–U.S. Strategic Advisory. Confidential by design.
           </div>
         </div>
       </footer>
 
       {/* ========================================================= */}
-      {/* DRAWERS & DIALOG OVERLAYS (Fluid animated sheets) */}
+      {/* DRAWERS & DIALOG OVERLAYS */}
       {/* ========================================================= */}
       <AnimatePresence>
         {/* SERVICES CAPABILITIES DETAILS OVERLAY */}
         {selectedService && (
           <div className="fixed inset-0 z-50 flex justify-end">
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.6 }}
@@ -968,7 +875,6 @@ export default function App() {
               className="absolute inset-0 bg-brand-dim/80 backdrop-blur-sm"
             ></motion.div>
 
-            {/* Panel */}
             <motion.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
@@ -980,9 +886,9 @@ export default function App() {
                 <div className="flex items-center justify-between border-b border-brand-outline-variant/30 pb-6 mb-8">
                   <div className="flex items-center gap-3">
                     <span className="text-[10px] font-bold tracking-widest text-brand-primary bg-brand-surface px-2.5 py-1 border border-brand-outline-variant/30 uppercase">
-                      SERVICE FIELD
+                      CAPABILITY
                     </span>
-                    <span className="text-xs font-mono text-brand-outline">CAPABILITY DETAILS</span>
+                    <span className="text-xs font-mono text-brand-outline">DETAILS</span>
                   </div>
                   <button
                     onClick={() => setSelectedService(null)}
@@ -993,7 +899,7 @@ export default function App() {
                 </div>
 
                 <div className="mb-6">{renderIcon(selectedService.iconName)}</div>
-                
+
                 <h3 className="font-serif text-3xl text-brand-parchment leading-tight tracking-wide mb-3 uppercase">
                   {selectedService.title}
                 </h3>
@@ -1006,7 +912,7 @@ export default function App() {
                 </p>
 
                 <h4 className="text-[11px] font-bold tracking-[0.2em] text-brand-outline-variant uppercase mb-4">
-                  CORE EXECUTIVE TASKS UNDERTAKEN:
+                  ADVISORY SCOPE:
                 </h4>
                 <ul className="space-y-4">
                   {selectedService.details.map((detail, dIdx) => (
@@ -1020,34 +926,24 @@ export default function App() {
                 </ul>
               </div>
 
-              {/* Action */}
-              <div className="mt-12 pt-6 border-t border-brand-outline-variant/30 flex items-center justify-between">
-                {selectedService.highlightStat && (
-                  <div>
-                    <span className="text-[10px] tracking-wider text-brand-outline block">OUTCOME RATIO</span>
-                    <span className="text-lg font-serif font-bold text-brand-primary">{selectedService.highlightStat.value}</span>
-                    <span className="text-[8px] tracking-widest text-brand-accent block uppercase ml-1">{selectedService.highlightStat.label}</span>
-                  </div>
-                )}
+              <div className="mt-12 pt-6 border-t border-brand-outline-variant/30 flex items-center justify-end">
                 <button
                   onClick={() => {
-                    setFormInterest(selectedService.id.includes('entry') ? 'us-to-korea' : 'other');
                     setSelectedService(null);
                     scrollTo(SECTION_IDS.contact);
                   }}
                   className="bg-brand-primary text-brand-on-primary hover:bg-brand-parchment hover:text-brand-surface py-3 px-6 text-xs font-bold tracking-widest uppercase transition-colors rounded-none"
                 >
-                  SECURE ADVOCATE BRIEFINGS
+                  REQUEST STRATEGIC BRIEFING
                 </button>
               </div>
             </motion.div>
           </div>
         )}
 
-        {/* INDUSTRIES CAPABILITIES DETAILS OVERLAY */}
+        {/* SECTORS DETAILS OVERLAY */}
         {selectedIndustry && (
           <div className="fixed inset-0 z-50 flex justify-end">
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.6 }}
@@ -1056,7 +952,6 @@ export default function App() {
               className="absolute inset-0 bg-brand-dim/80 backdrop-blur-sm"
             ></motion.div>
 
-            {/* Panel */}
             <motion.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
@@ -1068,9 +963,9 @@ export default function App() {
                 <div className="flex items-center justify-between border-b border-brand-outline-variant/30 pb-6 mb-8">
                   <div className="flex items-center gap-3">
                     <span className="text-[10px] font-bold tracking-widest text-brand-primary bg-brand-surface px-2.5 py-1 border border-brand-outline-variant/30 uppercase">
-                      INDUSTRY VERTICAL
+                      STRATEGIC SECTOR
                     </span>
-                    <span className="text-xs font-mono text-brand-outline">ZONAL FOCUS</span>
+                    <span className="text-xs font-mono text-brand-outline">FOCUS</span>
                   </div>
                   <button
                     onClick={() => setSelectedIndustry(null)}
@@ -1081,7 +976,7 @@ export default function App() {
                 </div>
 
                 <div className="mb-6">{renderIcon(selectedIndustry.iconName)}</div>
-                
+
                 <h3 className="font-serif text-3xl text-brand-parchment leading-tight tracking-wide mb-6 uppercase">
                   {selectedIndustry.name}
                 </h3>
@@ -1091,7 +986,7 @@ export default function App() {
                 </p>
 
                 <h4 className="text-[11px] font-bold tracking-[0.2em] text-brand-outline-variant uppercase mb-4">
-                  REPRESENTATIVE ADVISORY TARGETS:
+                  ADVISORY COVERAGE:
                 </h4>
                 <ul className="space-y-4">
                   {selectedIndustry.highlights.map((item, idx) => (
@@ -1103,17 +998,15 @@ export default function App() {
                 </ul>
               </div>
 
-              {/* Action */}
               <div className="mt-12 pt-6 border-t border-brand-outline-variant/30">
                 <button
                   onClick={() => {
-                    setAssessmentIndustry(selectedIndustry.id);
                     setSelectedIndustry(null);
-                    scrollTo('interactive-blueprint-calculator');
+                    scrollTo(SECTION_IDS.contact);
                   }}
                   className="w-full bg-brand-primary text-brand-on-primary hover:bg-brand-parchment hover:text-brand-surface py-3 text-xs font-bold tracking-widest uppercase transition-colors rounded-none"
                 >
-                  RUN SIMULATOR WITH {selectedIndustry.name.toUpperCase()}
+                  REQUEST STRATEGIC BRIEFING
                 </button>
               </div>
             </motion.div>
