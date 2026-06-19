@@ -7,129 +7,129 @@ import { Service, Industry, Office, InsightArticle } from './types';
 
 export const SERVICES: Service[] = [
   {
-    id: 'market-entry',
-    title: 'MARKET ENTRY',
-    subtitle: 'Confidential strategic launch paths',
-    description: 'Navigate new markets with confidence.',
-    longDescription: 'Comprehensive entry strategies leveraging local network intelligence, rigorous regulatory analysis, and tailored deployment channels to scale successfully across the U.S. and South Korea.',
+    id: 'korea-us-market-entry',
+    title: 'KOREA–U.S. MARKET ENTRY',
+    subtitle: 'Strategic access to both markets',
+    description: 'Navigate new markets with a partner who understands both the American innovation ecosystem and Korean corporate decision-making.',
+    longDescription: 'Navigate new markets with a partner who understands both the American innovation ecosystem and Korean corporate decision-making. We provide structured entry pathways, counterparty identification, and execution support for companies pursuing Korea–U.S. cross-border opportunities.',
     details: [
-      'Regulatory compliance & approvals (FDA, MFDS, FTC, KFTC)',
-      'Direct competitor intelligence & target pricing models',
-      'Corporate structure formulation (bilingual legal constructs)',
-      'Product localization strategy & channel testing'
+      'Market landscape analysis and entry pathway assessment',
+      'Counterparty identification and qualification across both markets',
+      'Regulatory and compliance navigation',
+      'Go-to-market strategy and execution support'
     ],
     iconName: 'DoorOpen',
-    highlightStat: { value: '98%', label: 'Market Approval Rate' }
+    highlightStat: { value: 'Korea–U.S.', label: 'Market Corridor' }
   },
   {
-    id: 'cross-border-strategy',
-    title: 'CROSS-BORDER STRATEGY',
-    subtitle: 'Dual-geography corporate alignment',
-    description: 'Strategic solutions tailored to both markets.',
-    longDescription: 'High-level structural alignment between U.S. headquarters and Korean business subsidiaries, managing complex multi-market reporting, international tax considerations, and strategic goals.',
+    id: 'strategic-partnership',
+    title: 'STRATEGIC PARTNERSHIP ORIGINATION',
+    subtitle: 'Access-driven relationship development',
+    description: 'Identify, qualify, and structure relationships between U.S. growth companies, Korean conglomerates, investors, and industrial partners.',
+    longDescription: 'Identify, qualify, and structure relationships between U.S. growth companies, Korean conglomerates, investors, and industrial partners. We bring direct access and disciplined process to the highest-value commercial and capital relationships in the Korea–U.S. corridor.',
     details: [
-      'M&A due diligence, local auditing, and valuation checks',
-      'Dual HQ alignment protocol & optimized bilingual reporting workflows',
-      'International transfer-pricing and cross-border commercial constructs',
-      'Capital restructuring & dual-currency capitalization strategies'
-    ],
-    iconName: 'GitMerge',
-    highlightStat: { value: '$4.2B', label: 'Cross-Border Volume Advised' }
-  },
-  {
-    id: 'partnership-development',
-    title: 'PARTNERSHIP DEVELOPMENT',
-    subtitle: 'Elite industrial syndicate networks',
-    description: 'Build meaningful, long-term partnerships.',
-    longDescription: 'Facilitating high-stakes introductions and collaborative joint ventures with Korean chaebols (leading industrial conglomerates), Silicon Valley pioneers, and East Asian supply network partners.',
-    details: [
-      'Exclusive introductions to Conglomerate Venture Arms (CVCs)',
-      'Joint Venture (JV) deal structuring, corporate mediation, and legal architectures',
-      'Strategic co-research & technology-sharing framework brokering',
-      'OEM/ODM supply agreements & off-take contract negotiations'
+      'Counterparty mapping and qualification across both markets',
+      'Partnership structuring and negotiation advisory',
+      'Joint venture and strategic alliance framework development',
+      'Corporate development team advisory and support'
     ],
     iconName: 'Users',
-    highlightStat: { value: '45+', label: 'Strategic JVs Structured' }
+    highlightStat: { value: 'Senior', label: 'Level Relationships' }
   },
   {
-    id: 'localization',
-    title: 'LOCALIZATION',
-    subtitle: 'Fusing products to regional paradigms',
-    description: 'Fit your business to local realities.',
-    longDescription: 'Optimizing and refitting your product design, business model, price structures, marketing messaging, and human resource parameters to mesh seamlessly with native expectations.',
+    id: 'capital-formation',
+    title: 'CAPITAL FORMATION & SPV STRATEGY',
+    subtitle: 'Cross-border capital pathways',
+    description: 'Support venture allocations, strategic investments, and cross-border SPV structures designed for Korean institutional and private capital.',
+    longDescription: 'Support venture allocations, strategic investments, and cross-border SPV structures designed for Korean institutional and private capital. We advise on the full capital formation lifecycle, from investor identification to structure design and execution.',
     details: [
-      'Digital interface adaptation (Kakao ecosystem integration split / US standard stack translation)',
-      'Cultural adaptation parameters & consumer sentiment surveys',
-      'Localized pricing adjustments & domestic banking/merchant gateway configurations',
-      'Executive talent sourcing (bilingual C-suite placements)'
+      'SPV structure design and implementation advisory',
+      'Korean institutional and private investor engagement',
+      'Cross-border capital pathway development',
+      'Strategic investment and co-investment advisory'
     ],
-    iconName: 'Globe',
-    highlightStat: { value: '100%', label: 'Cultural Congruency Score' }
+    iconName: 'GitMerge',
+    highlightStat: { value: 'Cross-Border', label: 'Capital Strategy' }
   },
   {
-    id: 'executive-advisory',
-    title: 'EXECUTIVE ADVISORY',
-    subtitle: 'High-level boardroom counsel',
-    description: 'Insight-driven guidance for key decisions.',
-    longDescription: 'Ongoing retentive boardroom counsel for Chief Executives, founders, and investment groups navigating complex trade environments, regulatory risks, and geo-economic frameworks.',
+    id: 'executive-access',
+    title: 'EXECUTIVE ACCESS & MEETING STRATEGY',
+    subtitle: 'Senior-level conversation preparation',
+    description: 'Prepare founder, investor, and corporate teams for senior-level conversations with the right materials, positioning, and negotiation strategy.',
+    longDescription: 'Prepare founder, investor, and corporate teams for senior-level conversations with the right materials, positioning, and negotiation strategy. We develop the briefing materials, stakeholder analysis, and negotiation frameworks required for high-value Korea–U.S. discussions.',
     details: [
-      'Geopolitical & trade policy risk assessment checks (CHIPS Act, Inflation Reduction Act)',
-      'Bespoke cross-border negotiation coaching and mediation retainers',
-      'Currency & treasury exposure optimization advice',
-      'Foreign Direct Investment (FDI) reporting compliance & filings support'
+      'Executive briefing material development and preparation',
+      'Stakeholder analysis and positioning strategy',
+      'Cultural context and negotiation preparation',
+      'Follow-up strategy and relationship management'
     ],
     iconName: 'Compass',
-    highlightStat: { value: '15+', label: 'Continuous Retainer Partners' }
+    highlightStat: { value: 'Executive', label: 'Level Access' }
+  },
+  {
+    id: 'sector-intelligence',
+    title: 'SECTOR INTELLIGENCE & DEAL ADVISORY',
+    subtitle: 'Focused market and deal intelligence',
+    description: 'Deliver focused intelligence across AI infrastructure, automotive, EV, defense, dual-use technology, and Korea-linked strategic opportunities.',
+    longDescription: 'Deliver focused intelligence across AI infrastructure, automotive, EV, defense, dual-use technology, and Korea-linked strategic opportunities. Our sector coverage is specific, current, and built around the commercial and capital dynamics of the Korea–U.S. corridor.',
+    details: [
+      'Sector-specific market intelligence and landscape reports',
+      'Deal flow analysis and opportunity assessment',
+      'Competitive landscape and counterparty mapping',
+      'Korea–U.S. strategic opportunity identification'
+    ],
+    iconName: 'Globe',
+    highlightStat: { value: 'Sector', label: 'Focused Intelligence' }
   }
 ];
 
 export const INDUSTRIES: Industry[] = [
   {
-    id: 'tech-ai',
-    name: 'Technology & AI Stack',
-    description: 'Bridging Silicon Valley neural network frameworks and cloud intelligence with East Asia’s high-precision engineering.',
-    longDescription: 'We advise deep-tech startups and enterprise SaaS founders on establishing commercial frameworks in Seoul and Silicon Valley, optimizing intellectual property assignment, and localizing enterprise procurement cycles with major technology groups.',
+    id: 'ai-infrastructure',
+    name: 'AI Infrastructure & Data Centers',
+    description: 'Strategic advisory for companies building next-generation compute, cloud infrastructure, enterprise AI systems, and data center ecosystems.',
+    longDescription: 'Strategic advisory for companies building next-generation compute, cloud infrastructure, enterprise AI systems, and data center ecosystems. We connect U.S. AI companies with Korean industrial partners, investors, and corporate development teams pursuing AI infrastructure opportunities in the Korea–U.S. corridor.',
     iconName: 'Cpu',
     highlights: [
-      'IP strategy & regulatory sandboxes',
-      'Chaebol-partnered commercial integration pilots',
-      'Bilingual software product localization parameters'
+      'Next-generation compute and cloud infrastructure partnerships',
+      'Enterprise AI system and data center ecosystem advisory',
+      'Korean corporate AI adoption and investment strategy'
     ]
   },
   {
-    id: 'semiconductors-mfg',
-    name: 'Advanced Packaging & Supply Chain',
-    description: 'Steering supply chain architecture through the complex landscape of semiconductor incentives, bilateral policies, and sub-tier sourcing.',
-    longDescription: 'In an era of semiconductor policy changes, we support equipment makers, raw material providers, and advanced packaging firms in establishing durable cross-border operations and meeting multi-national compliance hurdles.',
-    iconName: 'Layers',
-    highlights: [
-      'Bilateral subsidy alignment assessment',
-      'Supply chain localization and strategic buffer hub builds',
-      'Joint ventures with world-class foundry partners'
-    ]
-  },
-  {
-    id: 'energy-cleantech',
-    name: 'Energy, Infrastructure & Battery Storage',
-    description: 'Navigating hydrogen fuel infrastructure, next-generation battery cell chemistry, and clean-power grid integration protocols.',
-    longDescription: 'Collaborating with battery material suppliers, EV charging pioneers, and large-scale utilities to establish reliable manufacturing projects, transfer advanced research, and leverage multi-country climate funding structures.',
+    id: 'mobility-ev',
+    name: 'Mobility, EV & Automotive Technology',
+    description: 'Partnership development across electric vehicles, battery systems, advanced manufacturing, mobility platforms, and Korean OEM ecosystems.',
+    longDescription: 'Partnership development across electric vehicles, battery systems, advanced manufacturing, mobility platforms, and Korean OEM ecosystems. We advise companies navigating the Korea–U.S. automotive technology corridor, from battery supply chain to OEM commercial relationships.',
     iconName: 'Zap',
     highlights: [
-      'EV/Battery supply pipeline certification',
-      'Bilateral climate fund capital access strategies',
-      'Bespoke regulatory approval operations'
+      'EV and battery system partnership development',
+      'Korean OEM and automotive ecosystem navigation',
+      'Advanced manufacturing and mobility platform advisory'
     ]
   },
   {
-    id: 'consumer-lifestyle',
-    name: 'Prestige Consumer & Retailing',
-    description: 'Transforming premium lifestyle and wellness brands into cultural movements within Seoul’s dynamic retail ecosystems.',
-    longDescription: 'We offer strategic go-to-market methodologies for premium brands seeking direct-to-consumer and retail department store channels in key global flagship cities, including Seoul (Gagnam/Seongsu), New York, and Los Angeles.',
+    id: 'defense-dual-use',
+    name: 'Defense & Dual-Use Technology',
+    description: 'Market entry and strategic relationship support for technologies with commercial, industrial, and national security applications.',
+    longDescription: 'Market entry and strategic relationship support for technologies with commercial, industrial, and national security applications. We support companies navigating complex Korea–U.S. defense and dual-use technology relationships, from market entry to strategic partnership development.',
+    iconName: 'Layers',
+    highlights: [
+      'Dual-use technology market entry and commercial strategy',
+      'Defense sector relationship development and advisory',
+      'Commercial and national security application positioning'
+    ]
+  },
+  {
+    id: 'semiconductors',
+    name: 'Semiconductors & Advanced Manufacturing',
+    description: 'Cross-border advisory across advanced packaging, supply chain resilience, industrial automation, and high-value manufacturing partnerships.',
+    longDescription: 'Cross-border advisory across advanced packaging, supply chain resilience, industrial automation, and high-value manufacturing partnerships. We advise companies navigating the Korea–U.S. semiconductor and advanced manufacturing corridor, from supply chain strategy to joint venture development.',
     iconName: 'Sparkles',
     highlights: [
-      'E-commerce & local shipping hub setup (Coupang, Kakao Shopping)',
-      'Flagship location selection & partnership deals',
-      'Multi-market digital influencer synchronization'
+      'Advanced packaging and supply chain resilience advisory',
+      'Industrial automation partnership development',
+      'High-value manufacturing and joint venture strategy'
     ]
   }
 ];
@@ -168,7 +168,7 @@ export const INSIGHTS: InsightArticle[] = [
   {
     id: 'seoul-saas-procurement',
     category: 'LOCALIZATION',
-    title: 'Critical SaaS Localization Pitfalls in South Korea’s Corporate Ecosystem',
+    title: 'Critical SaaS Localization Pitfalls in South Korea\'s Corporate Ecosystem',
     summary: 'Why translation is only the first step. Understanding Kakao SSO, document storage, and Yeouido enterprise procurement cycles.',
     date: 'April 15, 2026',
     readTime: '8 MIN READ',
